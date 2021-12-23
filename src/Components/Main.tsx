@@ -1,4 +1,5 @@
 import Grid from '@mui/material/Grid';
+import Bills from './Bills';
 import Calendar from './Calendar';
 
 const Main = () => 
@@ -6,8 +7,9 @@ const Main = () =>
         <Grid item xs={8} height="100vh">
             <Calendar />
         </Grid>
-        <Grid item xs={4} bgcolor="blue" height="100vh">
-            Sidebar
+        <Grid item xs={4} height="100vh">
+            {/* <Header /> */}
+            <Bills />
         </Grid>
     </Grid>
 
