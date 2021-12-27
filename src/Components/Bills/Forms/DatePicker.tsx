@@ -1,4 +1,4 @@
-import * as React from 'react';
+import { useState } from 'react';
 import TextField, { TextFieldProps } from '@mui/material/TextField';
 import AdapterMoment from '@mui/lab/AdapterMoment';
 import LocalizationProvider from '@mui/lab/LocalizationProvider';
@@ -11,7 +11,7 @@ const DatePickerTextField = (params: TextFieldProps) => {
 };
 
 export default function DatePicker() {
-  const [value, setValue] = React.useState<Date | null>(null);
+  const [value, setValue] = useState<Date | null>(null);
 
   return (
     <LocalizationProvider dateAdapter={AdapterMoment}>

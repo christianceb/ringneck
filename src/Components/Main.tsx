@@ -7,8 +7,7 @@ const Main = () =>
         <Grid item xs={8} height="100vh">
             <Calendar />
         </Grid>
-        <Grid item xs={4} height="100vh">
-            {/* <Header /> */}
+        <Grid item sx={{ p: 1 }} xs={4} height="100vh">
             <Bills />
         </Grid>
     </Grid>

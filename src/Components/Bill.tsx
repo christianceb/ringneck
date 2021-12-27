@@ -3,7 +3,7 @@ import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 
 const Bill = () =>
-    <Card sx={{ minWidth: 275 }}>
+    <Card sx={{ mb: 1 }}>
         <CardContent>
             <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>
                 Bill #1

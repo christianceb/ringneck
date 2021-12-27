@@ -1,11 +1,10 @@
-import * as React from 'react';
-import { Typography, Grid, Button } from '@mui/material';
-// import NewBill from './Bills/Modal/NewBill'
-import { NewBillDialog } from './Bills/Modal/NewBillDialog';
+import { useState } from 'react';
+import { Typography, Grid, Box, Button } from '@mui/material';
+import NewBillDialog from './Bills/Modal/NewBillDialog';
 import Bill from "./Bill"
 
 const Bills = () => {
-    const [open, setOpen] = React.useState(false);
+    const [open, setOpen] = useState(false);
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
 
@@ -14,10 +13,10 @@ const Bills = () => {
             <Typography variant="h1" component="div">
                 Ringneck
             </Typography>
-            <>
+            <Box sx={{ mb: 1 }}>
                 <Button variant="contained" onClick={handleOpen}>New Bill</Button>
                 <NewBillDialog handleClose={handleClose} open={open} />
-            </>
+            </Box>
         </Grid>
         <Grid item xs={12}>
             <Bill />

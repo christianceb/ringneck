@@ -1,5 +1,5 @@
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button, ButtonGroup } from "@mui/material";
-import { NewBill as NewBillForm } from "../Forms/NewBill";
+import NewBillForm from "../Forms/NewBill";
 
 const NewBillDialog = (props: any) => {
     return <>
@@ -18,4 +18,4 @@ const NewBillDialog = (props: any) => {
     </>;
 }
 
-export { NewBillDialog };
+export default NewBillDialog;
