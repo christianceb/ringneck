@@ -1,4 +1,4 @@
-import Main from './Components/Main';
+import Main from './Views/Components/Main';
 
 const App = () => <Main />;
 
