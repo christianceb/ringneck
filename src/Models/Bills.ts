@@ -3,6 +3,11 @@ import Bill from "../Entity/Bill";
 export default class Bills {
     public items: Bill[] = [];
 
+    constructor()
+    {
+        this.clear();
+    }
+
     store(bill: Bill) : void {
         this.items.push(bill);
     }
@@ -58,5 +63,9 @@ export default class Bills {
     clear() : void {
         Bill.lastId = 0;
         this.items = [];
+    }
+
+    get() : Bill[] {
+        return this.items;
     }
 }

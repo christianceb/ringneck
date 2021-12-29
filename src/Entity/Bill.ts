@@ -6,23 +6,17 @@ export default class Bill
     static lastId: number = 0;
 
     public id: number;
-    public amount: number;
-    due: Date;
-    frequency: Frequency;
-
     public calculationResult?: CalculationResult;
-    
+
     constructor(
-        amount: number,
-        due: Date,
-        frequency: Frequency,
+        public amount: number,
+        public due: Date,
+        public frequency: Frequency,
+        public name?: string,
         id?: number
     )
     {
-        this.amount = amount
-        this.due = due;
-        this.frequency = frequency;
-
+        // Find us an Id
         if (id == null) {
             // Use last Id
             this.id = Bill.lastId + 1;

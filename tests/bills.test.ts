@@ -20,14 +20,14 @@ describe("Bills model/entity test", () => {
     expect(mockBills.items[0].id).toEqual(1);
     expect(mockBills.items[1].id).toEqual(2);
 
-    mockBills.store(new Bill(1923, new Date("2021-12-25"), Frequency.Fortnightly, 789456123));
+    mockBills.store(new Bill(1923, new Date("2021-12-25"), Frequency.Fortnightly, undefined, 789456123));
     mockBills.store(new Bill(2931, new Date("2021-12-25"), Frequency.Fortnightly));
 
     expect(mockBills.items[3].id).toEqual(789456124);
   });
 
   it("Find a bill with a specific Id", () => {
-    mockBills.store(new Bill(1923, new Date("2021-12-25"), Frequency.Fortnightly, 789456123));
+    mockBills.store(new Bill(1923, new Date("2021-12-25"), Frequency.Fortnightly, undefined, 789456123));
     
     const found = mockBills.find(789456123) as Bill;
 

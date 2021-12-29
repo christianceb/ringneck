@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { Typography, Grid, Box, Button } from '@mui/material';
 import NewBillDialog from './Bills/Modal/NewBillDialog';
+import BillsModel from '../../Models/Bills';
+import BillEntity from '../../Entity/Bill';
 import Bill from "./Bill"
 
-const Bills = () => {
+const Bills = (props: BillsComponentProps) => {
     const [open, setOpen] = useState(false);
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
@@ -19,9 +21,14 @@ const Bills = () => {
             </Box>
         </Grid>
         <Grid item xs={12}>
-            <Bill />
+            { props.bills.map((bill: BillEntity) => <Bill bill={bill} id={bill.id} />) }
         </Grid>
     </Grid>
+}
+
+interface BillsComponentProps {
+    model: BillsModel
+    bills: BillEntity[]
 }
 
 export default Bills;

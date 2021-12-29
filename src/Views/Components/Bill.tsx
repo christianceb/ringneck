@@ -1,15 +1,16 @@
 import { Card, CardActions, CardContent} from '@mui/material';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
+import BillEntity from '../../Entity/Bill';
 
-const Bill = () =>
+const Bill = (props: BillComponentProps) =>
     <Card sx={{ mb: 1 }}>
         <CardContent>
             <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>
-                Bill #1
+                Bill #{props.id}
             </Typography>
             <Typography variant="h3" component="div">
-                Optus
+                {props.bill.name}
             </Typography>
             <Typography variant="h4" component="div" gutterBottom>
                 You must save {"$400"} every month to prepare for a triple event on {"31 December 2021"}
@@ -22,5 +23,10 @@ const Bill = () =>
             <Button color="error" variant="contained" size="small">Delete this bill</Button>
         </CardActions>
     </Card>;
+
+interface BillComponentProps {
+    bill: BillEntity
+    id: number
+}
 
 export default Bill;
