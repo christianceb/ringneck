@@ -17,7 +17,7 @@ const Bills = (props: BillsComponentProps) => {
             </Typography>
             <Box sx={{ mb: 1 }}>
                 <Button variant="contained" onClick={handleOpen}>New Bill</Button>
-                <NewBillDialog handleClose={handleClose} open={open} />
+                { open ? <NewBillDialog model={props.model} handleClose={handleClose} open={open} /> : null }
             </Box>
         </Grid>
         <Grid item xs={12}>
