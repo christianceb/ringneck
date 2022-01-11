@@ -10,7 +10,7 @@ export default class Bills {
     {
         this.clear();
 
-        this.store(new Bill(1113, new Date("2021-12-31"), Frequency.Fortnightly, "Toyota Corella"));
+        // this.store(new Bill(1113, new Date("2021-12-31"), Frequency.Fortnightly, "Toyota Corella"));
     }
 
     store(bill: Bill) : void {
@@ -27,27 +27,29 @@ export default class Bills {
         this.items.push(bill);
     }
 
-    destroy(bill: Bill|number) : boolean {
+    destroy(billOrId: Bill|number) : boolean {
         let success = false;
         let index: number;
 
-        if (bill instanceof Bill) {
-            index = this.items.findIndex((element) => element.id === bill.id);
+        if (billOrId instanceof Bill) {
+            index = this.items.findIndex((element: Bill) => element.id === billOrId.id);
         }
         else {
-            index = bill;
+            index = this.items.findIndex((element: Bill) => element.id === billOrId);
         }
 
         if (index >= 0) {
-            this.items = this.items.splice(index, 1);
+            this.items.splice(index, 1);
+
+            success = true;
         }
 
         return success;
     }
 
-    find(ids: number|number[]) : Bill|Bill[]
+    find(ids: number|number[]) : Bill|Bill[]|null
     {
-        let result : Bill[]|Bill = []
+        let result : Bill[]|Bill|null = []
         let idsToFind : number[] = []
 
         if (typeof ids === "number") {
@@ -69,7 +71,9 @@ export default class Bills {
             if (typeof ids === "number") {
                 result = result[0];
             }
-
+        }
+        else {
+            result = null;
         }
 
         return result;
