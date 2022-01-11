@@ -5,7 +5,7 @@ import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import BasicDatePicker from "./DatePicker";
 
 const NewBill = (props: NewBillProps) => {
-    const [name, setName] = useState<string>();
+    const [name, setName] = useState<string>("");
     const [amount, setAmount] = useState<currency>(currency("1.00"));
     const [date, setDate] = useState<Date|null|undefined>(new Date()); // TODO: Really need a better way to say that `date` is nullable and not be explicit enough to mention all three possible types
 

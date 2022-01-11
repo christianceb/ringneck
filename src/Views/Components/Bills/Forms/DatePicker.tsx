@@ -18,7 +18,8 @@ const DatePicker = (props: DatePickerParams) => {
         value={props.date}
         onChange={(date: Date|null) => props.handleSet(date)}
         renderInput={DatePickerTextField}
-        inputFormat="D MMMM yyyy"
+        inputFormat="D MMM yyyy"
+        disableMaskedInput={true}
       />
     </LocalizationProvider>
   );
