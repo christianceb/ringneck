@@ -7,14 +7,14 @@ import Calendar from './Calendar';
 const Main = () => {
     const billsModel = new BillsModel();
 
-    const [bills] = useState(billsModel.get());
+    const [bills, setBills] = useState(billsModel.get());
 
     return <Grid container spacing={0}>
         <Grid item xs={8} height="100vh">
             <Calendar />
         </Grid>
         <Grid item sx={{ p: 1 }} xs={4} height="100vh">
-            <Bills model={billsModel} bills={bills}/>
+            <Bills model={billsModel} setBills={setBills} bills={bills}/>
         </Grid>
     </Grid>
 }

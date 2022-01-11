@@ -5,8 +5,14 @@ import currency from 'currency.js';
 import BillEntity from '../../Entity/Bill';
 import FrequencyNames from 'Enums/FrequencyNames';
 
-const Bill = (props: BillComponentProps) =>
-    <Card sx={{ mb: 1 }}>
+const Bill = (props: BillComponentProps) => {
+    const destroy = (event: any) => {
+        if (props.id) {
+            props.deleteHandler(props.id)
+        }
+    }
+
+    return <Card sx={{ mb: 1 }}>
         <CardContent>
             <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>
                 Bill #{props.id}
@@ -28,13 +34,15 @@ const Bill = (props: BillComponentProps) =>
             </Typography>
         </CardContent>
         <CardActions>
-            <Button color="error" variant="contained" size="small">Delete this bill</Button>
+            <Button color="error" variant="contained" size="small" onClick={destroy}>Delete this bill</Button>
         </CardActions>
     </Card>;
+}
 
 interface BillComponentProps {
     bill: BillEntity
     id?: number
+    deleteHandler: (id: number) => void
 }
 
 export default Bill;

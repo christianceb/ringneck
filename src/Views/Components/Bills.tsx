@@ -10,6 +10,11 @@ const Bills = (props: BillsComponentProps) => {
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
 
+    const deleteBill = (id: number) => {
+        props.model.destroy(id);
+        props.setBills(props.model.get());
+    }
+
     return <Grid container>
         <Grid item xs={12}>
             <Typography variant="h1" component="div">
@@ -21,7 +26,7 @@ const Bills = (props: BillsComponentProps) => {
             </Box>
         </Grid>
         <Grid item xs={12}>
-            { props.bills.map((bill: BillEntity) => <Bill bill={bill} id={bill.id} />) }
+            { props.bills.map((bill: BillEntity) => <Bill bill={bill} id={bill.id} deleteHandler={deleteBill} />) }
         </Grid>
     </Grid>
 }
@@ -29,6 +34,7 @@ const Bills = (props: BillsComponentProps) => {
 interface BillsComponentProps {
     model: BillsModel
     bills: BillEntity[]
+    setBills: React.Dispatch<React.SetStateAction<BillEntity[]>>
 }
 
 export default Bills;

@@ -39,7 +39,7 @@ export default class Bills {
         }
 
         if (index >= 0) {
-            this.items.splice(index, 1);
+            this.items = this.items.splice(index, 1);
         }
 
         return success;
