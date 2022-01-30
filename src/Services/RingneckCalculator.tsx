@@ -1,21 +1,94 @@
 import Bill from "Entity/Bill";
 import Frequency from "Enums/Frequency";
 import { DateTime, Duration } from "luxon";
-import { duration } from "moment";
-import { start } from "repl";
 
 class RingneckCalculator {
     public static readonly minimumGapYears: number = 4;
 
     public static calculate(bill: Bill, payDay: number): Bill
     {
-        const originalDate = DateTime.fromISO("2022-01-17");
-        const pinDate = DateTime.fromISO("2022-01-17");
-        const tripleEventMonths = [];
+        const dueDateInDateTime = bill.due ? DateTime.fromJSDate(bill.due) : null;
+        let budgetPeriods: Event[] = [];
         
-        payDay = 1; // Every YYYY-MM-{1} of the month
+        if (dueDateInDateTime && bill.frequency) {
+            budgetPeriods = this.findEventsUntilLeapYearTripleEvent(
+                dueDateInDateTime,
+                bill.frequency,
+                this.findLastRingneckLeapYear(dueDateInDateTime),
+                payDay
+            );
+        }
+
+        if (budgetPeriods.length) {
+            // We really need a better way for allowing nullable values wihthout the compiler being too overzealous, requiring us to coalesce (??) variable references sometimes.
+            let saveAmount: number | null = null,
+                nextTriple: number | null = null,
+                buckets: number | null = null,
+                payDays: number | null = null;
+            
+            const idedTripIndices = this.findTripleEventIndices(budgetPeriods); // Identified Trip Indices
+
+            for (let index = 0; index < budgetPeriods.length; index++) {
+                // const element = array[index];
+                
+                if (saveAmount === null && nextTriple === null) {
+                    /**
+                     * On the buckets calculation, "nextTriple - index" results in the number of budget periods where
+                     * there are only two occurences (( nextTriple - index ) * 2) of the quarterly payments. However,
+                     * it is guaranteed that there is another budget period missing which is the last budget period
+                     * where there are three occurrences of the quarterly payments (+3)
+                     */
+
+                    nextTriple = this.findNextTriple(index, idedTripIndices, budgetPeriods.length);
+                    buckets = Math.abs((( nextTriple - index ) * 2) + 3);
+                    saveAmount = buckets * (bill.amount ?? 0);
+                    payDays = Math.abs((nextTriple - index) + 1)
+                }
+
+                if (saveAmount && nextTriple && payDays) {
+                    budgetPeriods[index].amountToSave = saveAmount / payDays;
+                }
+
+                if (index == nextTriple) {
+                    saveAmount = null;
+                    nextTriple = null;
+                    buckets = null;
+                    payDays = null;
+                }
+            }
+        }
 
         return bill;
+    }
+
+    public static findNextTriple(index: number, triEventIndices: number[], budgetPeriodLength: number) : number
+    {
+        let nextTriEventIndex: number = -1;
+
+        for (let triEventIndex = index; triEventIndex < budgetPeriodLength; triEventIndex++) {
+            if (triEventIndex <= (triEventIndices.find(element => element == triEventIndex) ?? -1)) {
+                nextTriEventIndex = triEventIndex;
+                break;
+            }
+        }
+
+        return nextTriEventIndex;
+    }
+
+    public static findTripleEventIndices(events: Event[]) : number[]
+    {
+        const indices: number[] = [];
+        let index: number = 0;
+
+        for (const event of events) {
+            if (event.isTripleEvent) {
+                indices.push(index);
+            }
+
+            index++;
+        }
+
+        return indices;
     }
 
     public static safelyAssignDayToMonth(date: DateTime, day: number): DateTime
@@ -30,9 +103,9 @@ class RingneckCalculator {
         frequency: Frequency,
         endOnFirstTripleEventOfYear: number,
         payDay: number
-    ): Events[]
+    ): Event[]
     {
-        const events: Events[] = [];
+        const events: Event[] = [];
 
         let eventsCount = 0;
 
@@ -64,7 +137,6 @@ class RingneckCalculator {
         {
             date = date.plus(this.convertFrequencyToLuxonDuration(frequency));
         }
-        
         // ^ We want the end of the pay period to be not exactly the start of the next pay period. We just want it to be a second before it does
 
         while (true)
@@ -105,7 +177,7 @@ class RingneckCalculator {
         return DateTime.fromISO(date.toISO());
     }
 
-    public static findNextRingneckLeapYear(startDate?: DateTime) : number
+    public static findLastRingneckLeapYear(startDate?: DateTime) : number
     {
         let totalYears: number = 0;
 
@@ -152,13 +224,19 @@ class RingneckCalculator {
 
 export default RingneckCalculator;
 
-interface Events {
+export interface Event {
     budgetPeriod: BudgetPeriod
     count: number
     isTripleEvent: boolean
+    amountToSave?: number
 }
 
 interface BudgetPeriod {
     start: DateTime
     end: DateTime
+}
+
+interface BudgetBucket {
+    start: number
+    end: number
 }
