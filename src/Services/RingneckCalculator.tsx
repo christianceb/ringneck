@@ -7,14 +7,22 @@ import { start } from "repl";
 class RingneckCalculator {
     public static readonly minimumGapYears: number = 4;
 
-    public static calculate(bill: Bill): Bill
+    public static calculate(bill: Bill, payDay: number): Bill
     {
         const originalDate = DateTime.fromISO("2022-01-17");
         const pinDate = DateTime.fromISO("2022-01-17");
         const tripleEventMonths = [];
-        const payDay = 1; // Every YYYY-MM-{1} of the month
+        
+        payDay = 1; // Every YYYY-MM-{1} of the month
 
         return bill;
+    }
+
+    public static safelyAssignDayToMonth(date: DateTime, day: number): DateTime
+    {
+        return date.set({
+            day: day > date.daysInMonth ? date.daysInMonth : day
+        });
     }
 
     public static findEventsUntilLeapYearTripleEvent(
@@ -28,64 +36,68 @@ class RingneckCalculator {
 
         let eventsCount = 0;
 
+        // If the due date is before the pay day, then find a due date that is later than the pay date
+        if (date.day < payDay) {
+            while (date.day < payDay) {
+                date = date.plus(this.convertFrequencyToLuxonDuration(frequency));
+            }
+        }
+
+        // bp - b[udget] p[eriod]
+        let bpStart: DateTime, bpEnd: DateTime;
+
+        bpStart = this.cloneDateTime(date);
+
+        // Push to next month
+        // And set the bpStart to the payday
+        bpStart = bpStart.plus({month: 1})
+                                .set({
+                                    day: this.safelyAssignDayToMonth(bpStart, payDay).day
+                                });
+
+        // Lastly, set the bpEnd to the next month prior to the new budget period start
+        bpEnd = this.cloneDateTime(bpStart)
+                            .plus({month: 1})
+                            .minus({second: 1});
+
+        while (!(date >= bpStart && date <= bpEnd))
+        {
+            date = date.plus(this.convertFrequencyToLuxonDuration(frequency));
+        }
+        
+        // ^ We want the end of the pay period to be not exactly the start of the next pay period. We just want it to be a second before it does
+
         while (true)
         {
-            eventsCount = this.countFrequencyEventsInMonth(date, frequency)
+            eventsCount = this.countFrequencyEventsInBudgetPeriod(date, {start: bpStart, end: bpEnd}, frequency)
  
-            if (beforePayday) {
-
-            }
-
-            // if (eventsCount <) {
-
-            // }
-
             events.push({
-                year: date.year,
-                month: date.month,
+                budgetPeriod: {
+                    start: bpStart,
+                    end: bpEnd
+                },
                 count: eventsCount,
-                isTripleEvent: eventsCount > 2
+                isTripleEvent: eventsCount > 2,
             })
 
             // Check if we can end here
-            if (endOnFirstTripleEventOfYear == date.year) {
+            if (endOnFirstTripleEventOfYear == bpEnd.year && eventsCount > 2) {
                 break;
             }
 
             // Otherwise, prep for next iteration
-            date = date.plus({ month: 1 });
+            bpStart = bpStart.plus({month: 1})
+                .set({
+                    day: this.safelyAssignDayToMonth(bpStart, payDay).day
+                });
+
+            // Lastly, set the bpEnd to the next month prior to the new budget period start
+            bpEnd = this.cloneDateTime(bpStart)
+                .plus({month: 1})
+                .minus({second: 1});
         }
 
         return events;
-    }
-
-    public static findEventsInMonthSpread(date: DateTime, frequency: Frequency) : number
-    {
-        let eventsCount: number = 1,
-            spreadOutsideMonth: boolean = false,
-            dateBackwards: DateTime = this.cloneDateTime(date),
-            dateForwards:DateTime = this.cloneDateTime(date);
-
-        const duration: Duration = this.convertFrequencyToLuxonDuration(frequency);
-
-        while (!spreadOutsideMonth) {
-            dateBackwards = dateBackwards.minus(duration);
-            dateForwards = dateForwards.plus(duration);
-
-            if (dateBackwards.hasSame(date, "month")) {
-                eventsCount++;
-            }
-
-            if (dateForwards.hasSame(date, "month")) {
-                eventsCount++;
-            }
-
-            if (!dateBackwards.hasSame(date, "month") && !dateForwards.hasSame(date, "month")) {
-                spreadOutsideMonth = true;
-            }
-        }
-
-        return eventsCount;
     }
 
     private static cloneDateTime(date: DateTime) : DateTime
@@ -113,15 +125,20 @@ class RingneckCalculator {
         return startDate.year;
     }
 
-    public static countFrequencyEventsInMonth(date: DateTime, frequency: Frequency) : number
+    public static countFrequencyEventsInBudgetPeriod(
+        dueDate: DateTime,
+        bp: BudgetPeriod,
+        frequency: Frequency
+    ) : number
     {
-        const originalMonth = date.month;
         let events: number = 0;
 
-        while (originalMonth == date.month) {
-            date = date.plus(this.convertFrequencyToLuxonDuration(frequency));
+        while (dueDate <= bp.end) {
+            if (dueDate >= bp.start && dueDate <= bp.end) {
+                events++;                
+            }
 
-            events++;
+            dueDate = dueDate.plus(this.convertFrequencyToLuxonDuration(frequency));
         }
 
         return events;
@@ -129,17 +146,19 @@ class RingneckCalculator {
 
     private static convertFrequencyToLuxonDuration(frequency: Frequency) : Duration
     {
-        let duration: Duration = Duration.fromObject({ days: frequency });
-
-        return duration;
+        return Duration.fromObject({ days: frequency });
     }
 }
 
 export default RingneckCalculator;
 
 interface Events {
-    year: number
-    month: number
+    budgetPeriod: BudgetPeriod
     count: number
     isTripleEvent: boolean
+}
+
+interface BudgetPeriod {
+    start: DateTime
+    end: DateTime
 }

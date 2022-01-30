@@ -10,61 +10,118 @@ describe("Ringneck calculator test", () => {
     });
 
     it("Correctly determine the number of events from a given date", () => {
-        expect(RingneckCalculator.countFrequencyEventsInMonth(DateTime.fromISO("2022-01-23"), Frequency.Fortnightly)).toEqual(1);
+        expect(
+            RingneckCalculator.countFrequencyEventsInBudgetPeriod(
+                DateTime.fromISO("2022-01-23"),
+                {
+                    start: DateTime.fromISO("2022-01-13"),
+                    end: DateTime.fromISO("2022-02-13").minus({ second: 1 }),
+                },
+                Frequency.Fortnightly
+            )
+        ).toEqual(2);
         
-        expect(RingneckCalculator.countFrequencyEventsInMonth(DateTime.fromISO("2022-02-06"), Frequency.Fortnightly)).toEqual(2);
-        
-        expect(RingneckCalculator.countFrequencyEventsInMonth(DateTime.fromISO("2022-05-01"), Frequency.Fortnightly)).toEqual(3);
+        expect(
+            RingneckCalculator.countFrequencyEventsInBudgetPeriod(
+                DateTime.fromISO("2022-01-23"),
+                {
+                    start: DateTime.fromISO("2022-05-13"),
+                    end: DateTime.fromISO("2022-06-13").minus({ second: 1 }),
+                },
+                Frequency.Fortnightly
+            )
+        ).toEqual(3);
     });
 
-    it("Correctly determine number of months", () => {
-        const eventsByMonths = RingneckCalculator.findEventsUntilLeapYearTripleEvent(
+    it("If setting a day to a month, ensure that it's safe to do so (e.g.: assigning day 31 in a month where month does not have 31", () => {
+        // Day must return with 28 as it is the last day of February 2022
+        const exampleDate1 = DateTime.fromISO("2022-02-05");
+        expect(RingneckCalculator.safelyAssignDayToMonth(exampleDate1, 31).day).toEqual(28);
+        
+        // Day must return with 29 as it is a valid day on January 2022
+        const exampleDate2 = DateTime.fromISO("2022-01-31");
+        expect(RingneckCalculator.safelyAssignDayToMonth(exampleDate2, 29).day).toEqual(29);
+        
+        // Day must return with 30 as it is the last day of April 2022
+        const exampleDate3 = DateTime.fromISO("2022-04-20");
+        expect(RingneckCalculator.safelyAssignDayToMonth(exampleDate3, 31).day).toEqual(30);
+    });
+
+    it("Correctly determine number of budget periods", () => {
+        const budgetPeriods = RingneckCalculator.findEventsUntilLeapYearTripleEvent(
             DateTime.fromISO("2022-01-23"),
             Frequency.Fortnightly,
-            2028 // Is a ringneck leap year
+            2028, // Is a ringneck leap year
+            13
         )
 
-        expect(eventsByMonths.length).toEqual(73);
+        expect(budgetPeriods.length).toEqual(73);
     })
 
-    it("Find the events in a month but it counts forwards and back in time", () => {
-        const eventsinMonthSpread = RingneckCalculator.findEventsInMonthSpread(DateTime.fromISO("2022-01-23"), Frequency.Fortnightly);
-
-        expect(eventsinMonthSpread).toEqual(2);
-    })
-
-    it("Correctly determine number of events in every month", () => {
-        const monthsWithEvents = RingneckCalculator.findEventsUntilLeapYearTripleEvent(
+    it("Correctly determine number of events in every month if the payday is every 13th of the month", () => {
+        const budgetPeriods = RingneckCalculator.findEventsUntilLeapYearTripleEvent(
             DateTime.fromISO("2022-01-23"),
             Frequency.Fortnightly,
-            2028 // Is a ringneck leap year
+            2028, // Is a ringneck leap year
+            13
         )
 
-        const guaranteedTripleEventMonths = [
-            { month: 5, year: 2022 },
-            { month: 10, year: 2022 },
-            { month: 4, year: 2023 },
-            { month: 10, year: 2023 },
-            { month: 3, year: 2024 },
-            { month: 9, year: 2024 },
-            { month: 3, year: 2025 },
-            { month: 8, year: 2025 },
-            { month: 3, year: 2026 },
-            { month: 8, year: 2026 },
-            { month: 1, year: 2027 },
-            { month: 8, year: 2027 },
-            { month: 1, year: 2028 }
+        const tripleEventBudgetPeriods = [
+            DateTime.fromISO("2022-05-13"),
+            DateTime.fromISO("2022-11-13"),
+            DateTime.fromISO("2023-05-13"),
+            DateTime.fromISO("2023-10-13"),
+            DateTime.fromISO("2024-04-13"),
+            DateTime.fromISO("2024-10-13"),
+            DateTime.fromISO("2025-04-13"),
+            DateTime.fromISO("2025-09-13"),
+            DateTime.fromISO("2026-03-13"),
+            DateTime.fromISO("2026-09-13"),
+            DateTime.fromISO("2027-03-13"),
+            DateTime.fromISO("2027-08-13"),
+            DateTime.fromISO("2028-02-13"),
         ];
 
-        for (const monthwithEvents of monthsWithEvents) {
-            if (monthwithEvents.month == 1 && monthwithEvents.year == 2022) {
-                expect(monthwithEvents.count).toEqual(1);
-            }
-            else if (guaranteedTripleEventMonths.some((tripleEventMonth) => tripleEventMonth.month == monthwithEvents.month && tripleEventMonth.year == monthwithEvents.year)) {
-                expect(monthwithEvents.count).toEqual(3);
+        for (const budgetPeriod of budgetPeriods) {
+            if (tripleEventBudgetPeriods.some(budgetPeriodStart => budgetPeriod.budgetPeriod.start.equals(budgetPeriodStart))) {
+                expect(budgetPeriod.count).toEqual(3);
             }
             else {
-                expect(monthwithEvents.count).toEqual(2);
+                expect(budgetPeriod.count).toEqual(2);
+            }
+        }
+    })
+
+    it("Correctly determine number of events in every month if the payday is every first of the month", () => {
+        const budgetPeriods = RingneckCalculator.findEventsUntilLeapYearTripleEvent(
+            DateTime.fromISO("2022-01-23"),
+            Frequency.Fortnightly,
+            2028, // Is a ringneck leap year
+            1
+        )
+
+        const tripleEventBudgetPeriods = [
+            DateTime.fromISO("2022-05-01"),
+            DateTime.fromISO("2022-10-01"),
+            DateTime.fromISO("2023-04-01"),
+            DateTime.fromISO("2023-10-01"),
+            DateTime.fromISO("2024-03-01"),
+            DateTime.fromISO("2024-09-01"),
+            DateTime.fromISO("2025-03-01"),
+            DateTime.fromISO("2025-08-01"),
+            DateTime.fromISO("2026-03-01"),
+            DateTime.fromISO("2026-08-01"),
+            DateTime.fromISO("2027-01-01"),
+            DateTime.fromISO("2027-08-01"),
+            DateTime.fromISO("2028-01-01"),
+        ]
+
+        for (const budgetPeriod of budgetPeriods) {
+            if (tripleEventBudgetPeriods.some(budgetPeriodStart => budgetPeriod.budgetPeriod.start.equals(budgetPeriodStart))) {
+                expect(budgetPeriod.count).toEqual(3);
+            }
+            else {
+                expect(budgetPeriod.count).toEqual(2);
             }
         }
     })
