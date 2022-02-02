@@ -1,3 +1,4 @@
+import currency from "currency.js";
 import Bill from "Entity/Bill";
 import Frequency from "Enums/Frequency";
 import { DateTime, Duration } from "luxon";
@@ -5,13 +6,13 @@ import { DateTime, Duration } from "luxon";
 class RingneckCalculator {
     public static readonly minimumGapYears: number = 4;
 
-    public static calculate(bill: Bill, payDay: number): Bill
+    public static calculate(bill: Bill, payDay: number): BudgetPeriod[]
     {
         const dueDateInDateTime = bill.due ? DateTime.fromJSDate(bill.due) : null;
-        let budgetPeriods: Event[] = [];
+        let budgetPeriods: BudgetPeriod[] = [];
         
         if (dueDateInDateTime && bill.frequency) {
-            budgetPeriods = this.findEventsUntilLeapYearTripleEvent(
+            budgetPeriods = this.findBpsUntilLeapYearTripleEvent(
                 dueDateInDateTime,
                 bill.frequency,
                 this.findLastRingneckLeapYear(dueDateInDateTime),
@@ -46,7 +47,7 @@ class RingneckCalculator {
                 }
 
                 if (saveAmount && nextTriple && payDays) {
-                    budgetPeriods[index].amountToSave = saveAmount / payDays;
+                    budgetPeriods[index].amountToSave = this.centDivide(saveAmount, payDays);
                 }
 
                 if (index == nextTriple) {
@@ -58,7 +59,7 @@ class RingneckCalculator {
             }
         }
 
-        return bill;
+        return budgetPeriods;
     }
 
     public static findNextTriple(index: number, triEventIndices: number[], budgetPeriodLength: number) : number
@@ -75,13 +76,13 @@ class RingneckCalculator {
         return nextTriEventIndex;
     }
 
-    public static findTripleEventIndices(events: Event[]) : number[]
+    public static findTripleEventIndices(bps: BudgetPeriod[]) : number[]
     {
         const indices: number[] = [];
         let index: number = 0;
 
-        for (const event of events) {
-            if (event.isTripleEvent) {
+        for (const bp of bps) {
+            if (bp.isTripleEvent) {
                 indices.push(index);
             }
 
@@ -98,16 +99,16 @@ class RingneckCalculator {
         });
     }
 
-    public static findEventsUntilLeapYearTripleEvent(
+    public static findBpsUntilLeapYearTripleEvent(
         date: DateTime,
         frequency: Frequency,
         endOnFirstTripleEventOfYear: number,
         payDay: number
-    ): Event[]
+    ): BudgetPeriod[]
     {
-        const events: Event[] = [];
+        const budgetPeriods: BudgetPeriod[] = [];
 
-        let eventsCount = 0;
+        let bpsCount = 0;
 
         // If the due date is before the pay day, then find a due date that is later than the pay date
         if (date.day < payDay) {
@@ -141,19 +142,19 @@ class RingneckCalculator {
 
         while (true)
         {
-            eventsCount = this.countFrequencyEventsInBudgetPeriod(date, {start: bpStart, end: bpEnd}, frequency)
+            bpsCount = this.countFrequencyEventsInBudgetPeriod(date, {start: bpStart, end: bpEnd}, frequency)
  
-            events.push({
-                budgetPeriod: {
+            budgetPeriods.push({
+                period: {
                     start: bpStart,
                     end: bpEnd
                 },
-                count: eventsCount,
-                isTripleEvent: eventsCount > 2,
+                count: bpsCount,
+                isTripleEvent: bpsCount > 2,
             })
 
             // Check if we can end here
-            if (endOnFirstTripleEventOfYear == bpEnd.year && eventsCount > 2) {
+            if (endOnFirstTripleEventOfYear == bpEnd.year && bpsCount > 2) {
                 break;
             }
 
@@ -169,7 +170,7 @@ class RingneckCalculator {
                 .minus({second: 1});
         }
 
-        return events;
+        return budgetPeriods;
     }
 
     private static cloneDateTime(date: DateTime) : DateTime
@@ -199,7 +200,7 @@ class RingneckCalculator {
 
     public static countFrequencyEventsInBudgetPeriod(
         dueDate: DateTime,
-        bp: BudgetPeriod,
+        bp: Period,
         frequency: Frequency
     ) : number
     {
@@ -220,23 +221,23 @@ class RingneckCalculator {
     {
         return Duration.fromObject({ days: frequency });
     }
+
+    public static centDivide(amount: number, divisor: number) : number
+    {
+        return currency(amount, { fromCents: true }).divide(divisor).intValue;
+    }
 }
 
 export default RingneckCalculator;
 
-export interface Event {
-    budgetPeriod: BudgetPeriod
+export interface BudgetPeriod {
+    period: Period
     count: number
     isTripleEvent: boolean
     amountToSave?: number
 }
 
-interface BudgetPeriod {
+interface Period {
     start: DateTime
     end: DateTime
-}
-
-interface BudgetBucket {
-    start: number
-    end: number
 }
