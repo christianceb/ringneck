@@ -5,3 +5,15 @@ enum Frequency {
 }
 
 export default Frequency;
+
+type FrequencyInterface = {
+    [key in Frequency]: string;
+};
+
+const Names: FrequencyInterface = {
+    [Frequency.Weekly]: "Weekly",
+    [Frequency.Fortnightly]: "Fortnightly",
+    [Frequency.Monthly]: "Monthly",
+};
+
+export { Names };
