@@ -32,7 +32,7 @@ const Bill = (props: BillComponentProps) => {
 
     return (
         <Card sx={{ mb: 1 }}>
-            <CardHeader avatar={<Avatar>#{props.id}</Avatar>} title={ props.bill.name } subheader="14 Sept, 2016" />
+            <CardHeader avatar={<Avatar {...stringAvatar(props.bill.name ?? "")}>{props.bill.name?.substring(0,2).toUpperCase()}</Avatar>} title={ props.bill.name } subheader="14 Sept, 2016" />
             <CardContent>
                 <Typography variant="body2">
                     Frequency: { props.bill.frequency ? FrequencyNames[props.bill.frequency] : "" }
@@ -65,5 +65,30 @@ interface BillComponentProps {
     id?: number
     deleteHandler: (id: number) => void
 }
+
+const stringToColor = (string: string) => {
+    let hash = 0;
+    let i;
+  
+    for (i = 0; i < string.length; i += 1) {
+      hash = string.charCodeAt(i) + ((hash << 5) - hash);
+    }
+  
+    let color = '#';
+  
+    for (i = 0; i < 3; i += 1) {
+      const value = (hash >> (i * 8)) & 0xff;
+      color += `00${value.toString(16)}`.substr(-2);
+    }
+  
+    return color;
+}
+  
+const stringAvatar = (name: string) => {
+    return {
+        sx: { bgcolor: stringToColor(name), },
+    };
+}
+  
 
 export default Bill;

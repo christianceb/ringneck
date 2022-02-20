@@ -2,23 +2,26 @@ import { Select, MenuItem, FormControl, InputLabel } from '@mui/material';
 import TextField from '@mui/material/TextField';
 import { Box } from '@mui/system';
 import currency from 'currency.js';
-import Bill from 'Entity/Bill';
-import FrequencyNames from 'Enums/FrequencyNames';
+import Frequency from 'Enums/Frequency';
+import FrequencyTransformer from 'Transformers/Frequency';
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import DatePicker from "./DatePicker";
+import NewBillForm from 'Forms/NewBill';
 
 const NewBill = (props: NewBillProps) => {
     const [name, setName] = useState<string>("");
     const [amount, setAmount] = useState<currency>(currency("1.00"));
-    const [date, setDate] = useState<Date|null>(null); // TODO: Really need a better way to say that `date` is nullable and not be explicit enough to mention all three possible types
+    const [date, setDate] = useState<Date|null>(null);
+    const [frequency, setFrequency] = useState<string|unknown>("");
 
     useEffect(() => {
-        props.bill.name = name;
-        props.bill.amount = amount.intValue;
-        props.bill.due = date;
-
-        props.onChangeHandler(props.bill);
-    })
+        props.inputChangeHandler({
+            name: name,
+            amount: amount.intValue,
+            due: date,
+            frequency: (frequency as Frequency),
+        });
+    }, [name, amount, date, frequency])
 
     return <Box sx={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
         <div>
@@ -32,13 +35,14 @@ const NewBill = (props: NewBillProps) => {
                 label="Amount payable"
                 type="number"
                 value={amount}
-                onChange={(event) => setAmount(currency(event.target.value))} />
+                onChange={(event) => setAmount((currency(event.target.value)))} />
         </div>
         <div>
             <FormControl fullWidth variant="standard">
                 <InputLabel>Frequency</InputLabel>
-                <Select label="Frequency">
-                    { Object.entries(FrequencyNames).map(frequency => <MenuItem key={frequency[0]} value={frequency[0]}>{frequency[1]}</MenuItem>) }
+
+                <Select value={frequency} onChange={(event) => setFrequency(event.target.value)} label="Frequency">
+                    { FrequencyTransformer.getKvps().map(frequencyKvp => <MenuItem key={frequencyKvp.key} value={(frequencyKvp.value)}>{frequencyKvp.key}</MenuItem>) }
                 </Select>
             </FormControl>
         </div>
@@ -50,6 +54,6 @@ const NewBill = (props: NewBillProps) => {
 export default NewBill;
 
 interface NewBillProps {
-    bill: Bill;
-    onChangeHandler: Dispatch<SetStateAction<Bill>>;
+    input?: NewBillForm,
+    inputChangeHandler: Dispatch<SetStateAction<NewBillForm|undefined>>
 }

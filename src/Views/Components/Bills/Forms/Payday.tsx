@@ -8,7 +8,7 @@ import Frequency from "Enums/Frequency";
 
 const Payday = (props: PaydayProps) => {
     return <Box>
-        <Typography variant="h2" gutterBottom component="div">Set your pay date</Typography>
+        <Typography variant="h2" gutterBottom component="div">Set your pay date,</Typography>
 
         <Box sx={{ mb: 1, display: 'flex', gap: "1rem" }}>
             <LocalizationProvider dateAdapter={AdapterLuxon} sx={{ flex: "1 0 auto"}}>
