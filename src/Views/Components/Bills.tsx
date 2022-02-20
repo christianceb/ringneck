@@ -3,7 +3,7 @@ import { Typography, Grid, Box, Button, Alert, Snackbar, AlertColor } from '@mui
 import NewBillDialog from './Bills/Modal/NewBillDialog';
 import BillsModel from '../../Models/Bills';
 import BillEntity from '../../Entity/Bill';
-import BillRev from "./BillRev"
+import BillRev from "./Bill"
 import Payday from './Bills/Forms/Payday';
 import Frequency from 'Enums/Frequency';
 
