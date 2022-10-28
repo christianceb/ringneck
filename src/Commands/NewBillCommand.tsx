@@ -2,6 +2,8 @@ import Bill from "Entity/Bill";
 import Bills from "Models/Bills";
 import NewBill from "Forms/NewBill";
 import Command from "./Command";
+import RingneckCalculator from "Services/RingneckCalculator";
+import { PaycheckInfo } from "Views/Components/Bills";
 
 export default class NewBillCommand implements Command
 {
@@ -10,6 +12,7 @@ export default class NewBillCommand implements Command
     public constructor(
         private billsModel: Bills,
         private input: NewBill,
+        private payInfo: PaycheckInfo
     ) { }
 
     public execute(): boolean
@@ -40,6 +43,9 @@ export default class NewBillCommand implements Command
                 this.input.frequency,
                 this.input.name
             );
+            
+            console.log(RingneckCalculator.calculate(bill, this.payInfo.payDate.getDate()));
+
         }
 
         return bill;

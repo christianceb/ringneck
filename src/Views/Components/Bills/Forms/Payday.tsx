@@ -5,6 +5,7 @@ import { LocalizationProvider } from "@mui/lab";
 import AdapterLuxon from '@mui/lab/AdapterLuxon';
 import FrequencyNames from "Enums/FrequencyNames";
 import Frequency from "Enums/Frequency";
+import { DateTime } from "luxon";
 
 const Payday = (props: PaydayProps) => {
     return <Box>
@@ -15,7 +16,7 @@ const Payday = (props: PaydayProps) => {
                 <DatePicker
                     label="My next payday is in"
                     value={props.date}
-                    onChange={(date: Date|null) => { props.handlePaydaySet(date) }}
+                    onChange={(date: DateTime|null) => date != null ? props.handlePaydaySet(date.toJSDate()) : null }
                     renderInput={(params: any) => <TextField {...params}/>}
                     inputFormat="d MMM, yyyy"
                 />

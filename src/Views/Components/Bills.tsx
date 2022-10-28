@@ -32,7 +32,7 @@ const Bills = (props: BillsComponentProps) => {
     const [snackbarProps, setSnackbarProps] = useState<SnackbarProps>(buildSnackbarProps());
 
     useEffect(() => {
-        if (payDate && frequency) {
+        if (canEnableNewBill()) {
             setEnableNewBill(true);
         }
     }, [payDate, frequency])
@@ -46,18 +46,27 @@ const Bills = (props: BillsComponentProps) => {
         refreshBills();
     }
 
+    const canEnableNewBill = (): boolean => payDate != null && frequency != null;
+
     return <Grid container>
         <Grid item xs={12}>
-            <Typography variant="h1">
-                Ringneck
-            </Typography>
+            <Typography variant="h1">Ringneck</Typography>
 
             <Payday date={payDate} frequency={frequency} handlePaydaySet={setPayDate} handleFrequencySet={setFrequency} />
 
             <Box sx={{ mb: 1 }}>
                 <Typography variant="h2" gutterBottom>and then add your bills.</Typography>
                 <Button variant="contained" disabled={ !enableNewBill } onClick={handleOpen}>New Bill</Button>
-                { open ? <NewBillDialog model={props.model} handleClose={handleClose} open={open} snackbarHandler={setSnackbarProps} billRefresh={refreshBills}/> : null }
+                { open && (payDate != null && frequency != null) ? // why can't I just simply call `canEnableNewBill` >:(
+                    <NewBillDialog
+                        model={props.model}
+                        handleClose={handleClose}
+                        open={open}
+                        snackbarHandler={setSnackbarProps}
+                        billRefresh={refreshBills}
+                        payInfo={{payDate: payDate, frequency: frequency}}
+                    /> : null
+                }
             </Box>
         </Grid>
         <Grid item xs={12}>
@@ -78,6 +87,11 @@ interface BillsComponentProps
     setBills: Dispatch<SetStateAction<BillEntity[]>>
 }
 
+interface PaycheckInfo {
+    payDate: Date
+    frequency: Frequency
+}
+
 class SnackbarProps
 {
     public open: boolean = false;
@@ -86,4 +100,5 @@ class SnackbarProps
 }
 
 export default Bills;
+export type { PaycheckInfo };
 export { buildSnackbarProps, SnackbarProps };

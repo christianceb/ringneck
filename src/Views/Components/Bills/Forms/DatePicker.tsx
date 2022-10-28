@@ -3,6 +3,7 @@ import TextField, { TextFieldProps } from '@mui/material/TextField';
 import AdapterLuxon from '@mui/lab/AdapterLuxon';
 import LocalizationProvider from '@mui/lab/LocalizationProvider';
 import { DatePicker as MuiDatePicker } from '@mui/lab';
+import { DateTime } from 'luxon';
 
 const DatePickerTextField = (params: TextFieldProps) => {
   params.variant = "standard";
@@ -16,7 +17,7 @@ const DatePicker = (props: DatePickerParams) => {
       <MuiDatePicker
         label="Due date"
         value={props.date}
-        onChange={(date: Date|null) => props.handleSet(date)}
+        onChange={(date: DateTime|null) => date != null ? props.handleSet(date.toJSDate()) : null }
         renderInput={DatePickerTextField}
         inputFormat="d MMM, yyyy"
         disableMaskedInput={true}

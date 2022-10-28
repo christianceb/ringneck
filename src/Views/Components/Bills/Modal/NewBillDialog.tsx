@@ -2,7 +2,7 @@ import { Dialog, DialogTitle, DialogContent, DialogActions, Button, ButtonGroup 
 import NewBillForm from "Views/Components/Bills/Forms/NewBill";
 import BillsModel from 'Models/Bills';
 import { useState, Dispatch, SetStateAction, useEffect } from "react";
-import { buildSnackbarProps, SnackbarProps } from "Views/Components/Bills";
+import { buildSnackbarProps, PaycheckInfo, SnackbarProps } from "Views/Components/Bills";
 import NewBill from "Forms/NewBill";
 import NewBillCommand from "Commands/NewBillCommand";
 import Command from "Commands/Command";
@@ -11,10 +11,6 @@ const NewBillDialog = (props: NewBillDialogProps) => {
     const [newBillInput, setBillInput] = useState<NewBill|undefined>();
     
     let newBillCommand: NewBillCommand;
-
-    useEffect(() => {
-        console.log(newBillInput)
-    },[newBillInput]);
 
     const saveBill = (command: Command): void => {
         command.execute();
@@ -25,7 +21,7 @@ const NewBillDialog = (props: NewBillDialogProps) => {
         let success = false;
 
         if (newBillInput) {
-            newBillCommand = new NewBillCommand(props.model, newBillInput);
+            newBillCommand = new NewBillCommand(props.model, newBillInput, props.payInfo);
 
             saveBill(newBillCommand);
 
@@ -66,5 +62,6 @@ interface NewBillDialogProps {
     open: boolean,
     handleClose: () => void,
     snackbarHandler: Dispatch<SetStateAction<SnackbarProps>>,
-    billRefresh: () => void
+    billRefresh: () => void,
+    payInfo: PaycheckInfo
 }
