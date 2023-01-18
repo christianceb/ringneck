@@ -1,5 +1,5 @@
 import Frequency from "../Enums/Frequency";
-import CalculationResult from "./CalculationResult";
+import { CalculationResult } from "./CalculationResult";
 
 export default class Bill
 {
