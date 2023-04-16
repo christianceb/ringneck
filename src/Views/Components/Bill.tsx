@@ -8,7 +8,6 @@ import Avatar from '@mui/material/Avatar';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import DeleteIcon from '@mui/icons-material/Delete';
-import EditIcon from '@mui/icons-material/Edit';
 import BillEntity from '../../Entity/Bill';
 import { Button, Divider } from '@mui/material';
 import Schedule from './Bill/Schedule';
@@ -32,7 +31,14 @@ const Bill = (props: BillComponentProps) => {
 
     return (
         <Card sx={{ mb: 1 }}>
-            <CardHeader avatar={<Avatar {...stringAvatar(props.bill.name ?? "")}>{props.bill.name?.substring(0,2).toUpperCase()}</Avatar>} title={ props.bill.name } subheader="14 Sept, 2016" />
+            <CardHeader
+                avatar={
+                    <Avatar {...stringAvatar(props.bill.name ?? "")}>
+                        {props.bill.name?.substring(0,2).toUpperCase()}
+                    </Avatar>
+                }
+                title={ props.bill.name }
+                subheader={ props.bill.due?.toDateString() } />
             <CardContent>
                 <Typography variant="body2">
                     Frequency: { props.bill.frequency ? FrequencyNames[props.bill.frequency] : "" }
@@ -42,7 +48,7 @@ const Bill = (props: BillComponentProps) => {
                 </Typography>
                 <Divider sx={{ my: 1 }} />
                 <Typography>
-                    On your upcoming paydays, save <strong>$100</strong> until <strong>12 Jan, 2020</strong>. Then follow the rest of the schedule.
+                    You may save either {props.bill.calculationResult?.average} or {props.bill.calculationResult?.max} on the upcoming paydays to have enough buffer for the triple.
                 </Typography>
             </CardContent>
             <CardActions disableSpacing>
@@ -53,7 +59,7 @@ const Bill = (props: BillComponentProps) => {
             </CardActions>
             <Collapse in={expanded} timeout="auto">
                 <CardContent>
-                    <Schedule />
+                    { props.bill.calculationResult?.schedule ? <Schedule schedule={props.bill.calculationResult.schedule}  /> : null }
                 </CardContent>
             </Collapse>
         </Card>

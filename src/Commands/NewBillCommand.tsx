@@ -44,8 +44,7 @@ export default class NewBillCommand implements Command
                 this.input.name
             );
             
-            console.log(RingneckCalculator.calculate(bill, this.payInfo.payDate.getDate()));
-
+            bill.calculationResult = RingneckCalculator.calculate(bill, this.payInfo.payDate.getDate())
         }
 
         return bill;
