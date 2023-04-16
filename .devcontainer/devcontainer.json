@@ -11,11 +11,6 @@
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	// "forwardPorts": [],
 
-	// Use 'postCreateCommand' to run commands after the container is created.
-	"postCreateCommand": [
-		// "git config --global --add safe.directory /app",
-	],
-
 	"postStartCommand": "npm run start",
 
 	// Configure tool-specific properties.
@@ -26,9 +21,6 @@
 			]
 		}
 	},
-
-	// "workspaceMount": "source=${localWorkspaceFolder},target=/app,type=bind",
-	// "workspaceFolder": "/app",
 
 	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
 	"remoteUser": "node",
