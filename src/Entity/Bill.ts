@@ -11,8 +11,5 @@ export default class Bill
         public frequency?: Frequency,
         public name?: string,
         public id?: number
-    )
-    {
-
-    }
+    ) { }
 }

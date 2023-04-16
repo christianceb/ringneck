@@ -159,7 +159,7 @@ describe("Ringneck calculator test", () => {
     it("Ensure that the amount to save in certain bucket groups are correct (with payday being day one of the month)", () => {
         const bill: Bill = new Bill(24000, new Date("2022-01-23"), Frequency.Fortnightly)
 
-        const budgetPeriods: BudgetPeriod[] = RingneckCalculator.calculate(bill, 1);
+        const budgetPeriods: BudgetPeriod[] = RingneckCalculator.calculate(bill, 1).schedule;
 
         expect(budgetPeriods[0].count).toEqual(2)
         expect(budgetPeriods[0].amountToSave).toEqual(54000)
@@ -381,7 +381,7 @@ describe("Ringneck calculator test", () => {
     it("Ensure that the amount to save in certain bucket groups are correct (with payday being day 13 of the month)", () => {
         const bill: Bill = new Bill(24000, new Date("2022-01-23"), Frequency.Fortnightly)
 
-        const budgetPeriods: BudgetPeriod[] = RingneckCalculator.calculate(bill, 13);
+        const budgetPeriods: BudgetPeriod[] = RingneckCalculator.calculate(bill, 13).schedule;
 
         expect(budgetPeriods[0].count).toEqual(2)
         expect(budgetPeriods[0].amountToSave).toEqual(54000)

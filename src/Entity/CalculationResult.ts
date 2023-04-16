@@ -1,8 +1,6 @@
-export interface CalculationResult {
-    save: SaveValues
-}
+import { BudgetPeriod } from "Services/RingneckCalculator";
 
-interface SaveValues {
+export interface CalculationResult {
     /**
      * This is the amount to save up until a certain point in time.
      * The next amount to save after that is in this.after
@@ -25,4 +23,6 @@ interface SaveValues {
      * You will have an excess, but you will never have to worry again about a triple.
      */
     max: number;
+
+    schedule: BudgetPeriod[];
 }

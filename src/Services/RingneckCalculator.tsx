@@ -1,13 +1,16 @@
 import currency from "currency.js";
 import Bill from "Entity/Bill";
+import { CalculationResult } from "Entity/CalculationResult";
 import Frequency from "Enums/Frequency";
 import { DateTime, Duration } from "luxon";
 
 class RingneckCalculator {
     public static readonly minimumGapYears: number = 4;
 
-    public static calculate(bill: Bill, payDay: number): BudgetPeriod[]
+    public static calculate(bill: Bill, payDay: number): CalculationResult
     {
+        let low: number = 0, high: number = 0, firstSave: number = 0, afterfirstSave: number = 0;
+
         const dueDateInDateTime = bill.due ? DateTime.fromJSDate(bill.due) : null;
         let budgetPeriods: BudgetPeriod[] = [];
         
@@ -47,7 +50,29 @@ class RingneckCalculator {
                 }
 
                 if (saveAmount && nextTriple && payDays) {
-                    budgetPeriods[index].amountToSave = this.centDivide(saveAmount, payDays);
+                    let centDividedSaveAmount: number = this.centDivide(saveAmount, payDays);
+
+                    budgetPeriods[index].amountToSave = centDividedSaveAmount;
+
+                    if (firstSave == 0) {
+                        firstSave = centDividedSaveAmount;
+                    }
+
+                    if (afterfirstSave == 0 && firstSave != 0) {
+                        afterfirstSave = centDividedSaveAmount;
+                    }
+
+                    if (low == 0 || high == 0) {
+                        low = high = centDividedSaveAmount;
+                    }
+
+                    if (centDividedSaveAmount < low) {
+                        low = centDividedSaveAmount;
+                    }
+
+                    if (centDividedSaveAmount > high) {
+                        high = centDividedSaveAmount;
+                    }
                 }
 
                 if (index == nextTriple) {
@@ -59,7 +84,13 @@ class RingneckCalculator {
             }
         }
 
-        return budgetPeriods;
+        return {
+            schedule: budgetPeriods,
+            amount: firstSave,
+            after: afterfirstSave,
+            average: high + low / 2,
+            max: high
+        };
     }
 
     public static findNextTriple(index: number, triEventIndices: number[], budgetPeriodLength: number) : number
