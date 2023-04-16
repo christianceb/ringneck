@@ -10,15 +10,15 @@ import NewBillForm from 'Forms/NewBill';
 
 const NewBill = (props: NewBillProps) => {
     const [name, setName] = useState<string>("");
-    const [amount, setAmount] = useState<currency>(currency("1.00"));
+    const [amount, setAmount] = useState<currency|string>(currency("1.00"));
     const [date, setDate] = useState<Date|null>(null);
     const [frequency, setFrequency] = useState<string|unknown>("");
 
     useEffect(() => {
         props.inputChangeHandler({
             name: name,
-            amount: amount.intValue,
-            due: date,
+            amount: amount instanceof currency ? amount.intValue : 0,
+            due: date ?? new Date,
             frequency: (frequency as Frequency),
         });
     }, [name, amount, date, frequency])
@@ -33,9 +33,9 @@ const NewBill = (props: NewBillProps) => {
                 required
                 fullWidth
                 label="Amount payable"
-                type="number"
                 value={amount}
-                onChange={(event) => setAmount((currency(event.target.value)))} />
+                onChange={(event) => setAmount(event.target.value)}
+                onBlur={(event) => setAmount((currency(event.target.value)))} />
         </div>
         <div>
             <FormControl fullWidth variant="standard">
